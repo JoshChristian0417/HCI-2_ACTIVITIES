@@ -1,0 +1,10 @@
+items = ["Touch", "Sound", "Vision", "Motion"]
+
+all_permutations = list(permutations(items))
+
+print("=== Part 2: itertools.permutations ===")
+print("Total permutations:", len(all_permutations))
+print("\nFirst 5 permutations:")
+
+for p in all_permutations[:5]:
+    print(p)

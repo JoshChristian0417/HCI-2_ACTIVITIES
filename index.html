@@ -1,0 +1,456 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+
+    <title>Neon Task Manager</title>
+
+    <style>
+        * {
+            box-sizing: border-box;
+        }
+
+        body {
+            margin: 0;
+            min-height: 100vh;
+            padding: 60px 20px;
+            font-family: Arial, sans-serif;
+            color: #fff;
+
+            /* Neon background */
+            background:
+                radial-gradient(circle at 20% 20%, #ff00cc33 0%, transparent 30%),
+                radial-gradient(circle at 80% 30%, #00ffff33 0%, transparent 30%),
+                radial-gradient(circle at 50% 80%, #7b00ff44 0%, transparent 35%),
+                linear-gradient(135deg, #050014, #0b0020, #00152e);
+
+            background-attachment: fixed;
+            overflow-x: hidden;
+        }
+
+        /* Neon background decorations */
+        body::before {
+            content: "";
+            position: fixed;
+            inset: 0;
+            pointer-events: none;
+            background-image:
+                linear-gradient(#00ffff15 1px, transparent 1px),
+                linear-gradient(90deg, #ff00ff15 1px, transparent 1px);
+            background-size: 50px 50px;
+            mask-image: linear-gradient(to bottom, transparent, black, transparent);
+        }
+
+        .container {
+            position: relative;
+            width: 100%;
+            max-width: 600px;
+            margin: auto;
+            padding: 35px;
+
+            background: rgba(5, 5, 30, 0.75);
+            border: 1px solid #00ffff;
+            border-radius: 20px;
+
+            box-shadow:
+                0 0 10px #00ffff,
+                0 0 30px #0066ff55,
+                inset 0 0 30px #00ffff0d;
+
+            backdrop-filter: blur(12px);
+        }
+
+        /* Title */
+        h1 {
+            margin: 0 0 30px;
+            text-align: center;
+            font-size: 34px;
+            font-weight: 700;
+            letter-spacing: 3px;
+            text-transform: uppercase;
+
+            color: #fff;
+
+            text-shadow:
+                0 0 5px #fff,
+                0 0 10px #00ffff,
+                0 0 20px #00ffff,
+                0 0 40px #ff00ff;
+        }
+
+        /* Small neon line under title */
+        h1::after {
+            content: "";
+            display: block;
+            width: 100px;
+            height: 3px;
+            margin: 15px auto 0;
+
+            background: linear-gradient(
+                90deg,
+                #00ffff,
+                #ff00ff,
+                #ffff00
+            );
+
+            box-shadow:
+                0 0 8px #00ffff,
+                0 0 15px #ff00ff;
+
+            border-radius: 10px;
+        }
+
+        /* Input area */
+        .input-area {
+            display: flex;
+            gap: 10px;
+            margin-bottom: 25px;
+        }
+
+        #taskInput {
+            flex: 1;
+            padding: 15px 18px;
+
+            color: #fff;
+            font-size: 15px;
+
+            background: rgba(0, 0, 30, 0.8);
+
+            border: 1px solid #00ffff;
+            border-radius: 10px;
+
+            outline: none;
+
+            box-shadow:
+                0 0 8px #00ffff55,
+                inset 0 0 10px #00ffff0d;
+
+            transition: 0.3s;
+        }
+
+        #taskInput::placeholder {
+            color: #aaa;
+        }
+
+        #taskInput:focus {
+            border-color: #ff00ff;
+
+            box-shadow:
+                0 0 8px #ff00ff,
+                0 0 20px #ff00ff55;
+        }
+
+        /* Add button */
+        #addBtn {
+            padding: 15px 22px;
+
+            border: none;
+            border-radius: 10px;
+
+            color: #fff;
+            font-size: 14px;
+            font-weight: bold;
+            letter-spacing: 1px;
+
+            cursor: pointer;
+
+            background: linear-gradient(
+                135deg,
+                #0066ff,
+                #9b00ff,
+                #ff00cc
+            );
+
+            box-shadow:
+                0 0 8px #ff00ff,
+                0 0 20px #8a00ff55;
+
+            transition: 0.3s;
+        }
+
+        #addBtn:hover {
+            transform: translateY(-2px) scale(1.03);
+
+            box-shadow:
+                0 0 10px #00ffff,
+                0 0 25px #ff00ff,
+                0 0 40px #7b00ff;
+        }
+
+        /* Task row */
+        .task-row {
+            position: relative;
+
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            gap: 15px;
+
+            padding: 16px 18px;
+            margin-bottom: 12px;
+
+            background: rgba(10, 10, 40, 0.8);
+
+            border: 1px solid #8a2be2;
+            border-radius: 12px;
+
+            box-shadow:
+                0 0 8px #8a2be255,
+                inset 0 0 15px #8a2be20d;
+
+            transition: 0.3s;
+        }
+
+        .task-row:hover {
+            transform: translateX(4px);
+
+            border-color: #00ffff;
+
+            box-shadow:
+                0 0 10px #00ffff,
+                0 0 25px #00ffff33;
+        }
+
+        /* Neon circle */
+        .task-row::before {
+            content: "";
+            width: 12px;
+            height: 12px;
+            min-width: 12px;
+
+            border-radius: 50%;
+
+            background: #00ffff;
+
+            box-shadow:
+                0 0 5px #00ffff,
+                0 0 12px #00ffff,
+                0 0 20px #00ffff;
+        }
+
+        .task-row span {
+            flex: 1;
+
+            color: #fff;
+            font-size: 15px;
+
+            word-break: break-word;
+
+            text-shadow: 0 0 5px #ffffff55;
+        }
+
+        /* Delete button */
+        .delete-btn {
+            padding: 7px 12px;
+
+            border: 1px solid #ff0066;
+            border-radius: 7px;
+
+            background: transparent;
+            color: #ff4da6;
+
+            font-size: 12px;
+            font-weight: bold;
+
+            cursor: pointer;
+
+            transition: 0.3s;
+
+            box-shadow: 0 0 6px #ff006655;
+        }
+
+        .delete-btn:hover {
+            color: #fff;
+            background: #ff0066;
+
+            box-shadow:
+                0 0 8px #ff0066,
+                0 0 20px #ff0066;
+        }
+
+        /* Different neon colors for task rows */
+        .task-row:nth-child(2n) {
+            border-color: #ff00ff;
+            box-shadow: 0 0 8px #ff00ff55;
+        }
+
+        .task-row:nth-child(2n)::before {
+            background: #ff00ff;
+
+            box-shadow:
+                0 0 5px #ff00ff,
+                0 0 12px #ff00ff,
+                0 0 20px #ff00ff;
+        }
+
+        .task-row:nth-child(3n) {
+            border-color: #ffff00;
+            box-shadow: 0 0 8px #ffff0055;
+        }
+
+        .task-row:nth-child(3n)::before {
+            background: #ffff00;
+
+            box-shadow:
+                0 0 5px #ffff00,
+                0 0 12px #ffff00,
+                0 0 20px #ffff00;
+        }
+
+        .task-row:nth-child(4n) {
+            border-color: #00ff88;
+            box-shadow: 0 0 8px #00ff8855;
+        }
+
+        .task-row:nth-child(4n)::before {
+            background: #00ff88;
+
+            box-shadow:
+                0 0 5px #00ff88,
+                0 0 12px #00ff88,
+                0 0 20px #00ff88;
+        }
+
+        /* Mobile */
+        @media (max-width: 500px) {
+
+            body {
+                padding: 30px 15px;
+            }
+
+            .container {
+                padding: 25px 20px;
+            }
+
+            h1 {
+                font-size: 26px;
+            }
+
+            .input-area {
+                flex-direction: column;
+            }
+
+            #addBtn {
+                width: 100%;
+            }
+
+            .task-row {
+                padding: 14px;
+            }
+        }
+    </style>
+</head>
+
+<body>
+
+    <div class="container">
+
+        <h1>My Task Manager</h1>
+
+        <div class="input-area">
+
+            <input
+                type="text"
+                id="taskInput"
+                placeholder="Enter a task..."
+            >
+
+            <button id="addBtn">ADD TASK</button>
+
+        </div>
+
+        <div id="taskList"></div>
+
+    </div>
+
+
+    <script>
+
+        // ==========================================
+        // PILLAR 1 — SELECTION 
+
+// Selection is used to find and get the HTML elements that we need to use in JavaScript. In my code, it gets the input box, Add Task button, and task list.
+
+        // ==========================================
+
+        const input = document.querySelector("#taskInput");
+        const addBtn = document.querySelector("#addBtn");
+        const container = document.querySelector("#taskList");
+
+
+        // ==========================================
+        // PILLAR 2 — MANIPULATION
+// Manipulation is used to create and add new elements to the webpage. In my code, it creates a new task and adds it to the task list when you add a task.
+        // ==========================================
+
+        function createTask(taskText) {
+
+            const row = document.createElement("div");
+
+            row.className = "task-row";
+
+            row.innerHTML = `
+                <span>${taskText}</span>
+                <button class="delete-btn">DELETE</button>
+            `;
+
+            container.appendChild(row);
+        }
+
+
+        // ==========================================
+        // PILLAR 3 — EVENT HANDLING
+// Event Handling is used to respond to actions made by the user. In my code, it responds when the user clicks the Add Task button or presses the Enter key.
+        // ==========================================
+
+        addBtn.addEventListener("click", function () {
+
+            const taskText = input.value.trim();
+
+            if (taskText === "") {
+
+                alert("Please enter a task.");
+
+                return;
+            }
+
+            createTask(taskText);
+
+            input.value = "";
+
+            input.focus();
+        });
+
+
+        // Press Enter to add task
+        input.addEventListener("keypress", function (event) {
+
+            if (event.key === "Enter") {
+                addBtn.click();
+            }
+
+        });
+
+
+        // ==========================================
+        // PILLAR 4 — TRAVERSAL
+// Traversal is used to move from one HTML element to another related element. Event Delegation is used to handle events from elements inside another element. In my code, it finds the task row connected to the Delete button and removes that task when the button is clicked.
+
+        // ==========================================
+
+        container.addEventListener("click", function (event) {
+
+            if (event.target.classList.contains("delete-btn")) {
+
+                const taskRow = event.target.parentElement;
+
+                taskRow.remove();
+            }
+
+        });
+
+    </script>
+
+</body>
+</html>
